@@ -1,4 +1,4 @@
-use geo::{BooleanOps, MapCoords, OpType};
+use geo::{CheckedBooleanOps, MapCoords, OpType};
 use neo_float::NeoFloat;
 
 pub trait NeoGeoBoolops<F: NeoFloat> {
@@ -18,19 +18,19 @@ pub trait NeoGeoBoolops<F: NeoFloat> {
 impl<F, Boolable, BoolableMappedF64, BoolableMappedF> NeoGeoBoolops<F> for Boolable
 where
     F: NeoFloat,
-    BoolableMappedF64: BooleanOps<Scalar = f64> + MapCoords<f64, F, Output = Boolable>,
-    BoolableMappedF: BooleanOps<Scalar = F>,
-    Boolable: BooleanOps<Scalar = F>
+    BoolableMappedF64: CheckedBooleanOps<Scalar = f64> + MapCoords<f64, F, Output = Boolable>,
+    BoolableMappedF: CheckedBooleanOps<Scalar = F>,
+    Boolable: CheckedBooleanOps<Scalar = F>
         + MapCoords<F, f64, Output = BoolableMappedF64>
         + MapCoords<F, F, Output = BoolableMappedF>,
 {
     fn neo_boolop(&self, other: &Self, op: OpType) -> Option<geo::MultiPolygon<F>> {
         let res = self
-            .try_boolean_op(other, op)
+            .checked_boolean_op(other, op)
             .or_else(|_| {
                 let s = self.map_coords(coord_upcast);
                 let o = other.map_coords(coord_upcast);
-                s.try_boolean_op(&o, op)
+                s.checked_boolean_op(&o, op)
                     .map(|res| res.map_coords(coord_downcast))
             })
             .ok();
@@ -51,7 +51,7 @@ where
                 res = res.or_else(|| {
                     let s = self.map_coords(|c| c + random_coord());
                     let o = other.map_coords(|c| c + random_coord());
-                    s.try_boolean_op(&o, op).ok()
+                    s.checked_boolean_op(&o, op).ok()
                 });
                 max_retries -= 1;
             }
@@ -79,18 +79,18 @@ fn coord_downcast<F: NeoFloat>(c: geo::Coord<f64>) -> geo::Coord<F> {
 fn f32_version_compiles() {
     type T = f32;
     let poly = geo::Polygon::<T>::new(geo::LineString::<T>::new(vec![]), vec![]);
-    _ = poly.try_union(&poly);
+    _ = poly.checked_union(&poly);
 
     let multi_poly = geo::MultiPolygon::<T>::new(vec![]);
-    _ = multi_poly.try_union(&multi_poly);
+    _ = multi_poly.checked_union(&multi_poly);
 }
 
 #[test]
 fn f64_version_compiles() {
     type T = f64;
     let poly = geo::Polygon::<T>::new(geo::LineString::<T>::new(vec![]), vec![]);
-    _ = poly.try_union(&poly);
+    _ = poly.checked_union(&poly);
 
     let multi_poly = geo::MultiPolygon::<T>::new(vec![]);
-    _ = multi_poly.try_union(&multi_poly);
+    _ = multi_poly.checked_union(&multi_poly);
 }
