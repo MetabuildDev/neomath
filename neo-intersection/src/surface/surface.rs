@@ -1,6 +1,5 @@
-use geo::MapCoords;
+use geo::{MapCoords, SpadeBoolops};
 use glam::Vec3;
-use neo_geo_boolops::NeoGeoBoolops;
 use neo_surface::surface::def::NeoSurface;
 
 use crate::line_intersection_parts::Line3DIntersectionParts;
@@ -43,12 +42,11 @@ fn surface_intersection_case_analysis(surface: &NeoSurface, rhs: &NeoSurface) ->
     // we are working in the coordinate system of the `surface` argument
     let origin_2d_diff = surface.shape_origin - rhs.shape_origin;
     let rhs_translated_shape = rhs.shape.map_coords(|c| c + origin_2d_diff);
-    let intersection = surface.shape.neo_intersection(&rhs_translated_shape);
+    let intersection = SpadeBoolops::intersection(&surface.shape, &rhs_translated_shape).unwrap();
 
     // if it fails, we just return no intersection at all which might be wrong
     intersection
         .into_iter()
-        .flat_map(|mp| mp.into_iter())
         .map(|p| NeoSurface {
             shape: p,
             ..surface.clone()

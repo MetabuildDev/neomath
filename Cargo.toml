@@ -5,7 +5,6 @@ members = [
   "neo-bounded",
   "neo-coordinate-system",
   "neo-float",
-  "neo-geo-boolops",
   "neo-geo-glam-interop",
   "neo-intersection",
   "neo-line-segment",
@@ -17,7 +16,7 @@ members = [
 
 [workspace.dependencies]
 # needed
-geo = { version = "0.26", default-features = false }
+geo = { version = "0.26" }
 glam = "0.24"
 spade = "2.2"
 
@@ -26,7 +25,6 @@ neo-aabb = { path = "neo-aabb" }
 neo-bounded = { path = "neo-bounded" }
 neo-coordinate-system = { path = "neo-coordinate-system" }
 neo-float = { path = "neo-float" }
-neo-geo-boolops = { path = "neo-geo-boolops" }
 neo-geo-glam-interop = { path = "neo-geo-glam-interop" }
 neo-intersection = { path = "neo-intersection" }
 neo-line-segment = { path = "neo-line-segment" }
@@ -41,4 +39,4 @@ rand = "0.8"
 serde_json = "1.0"
 
 [patch.crates-io]
-geo = { git = "https://github.com/RobWalt/geo", branch = "experiment/safe-boolops" }
+geo = { git = "https://github.com/RobWalt/geo", branch = "feat/spade-boolops" }
